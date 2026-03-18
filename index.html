@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#E8721A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mordisco">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Mordisco Visual</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --crema:   #FDF6EC;
+  --crema2:  #F5ECD8;
+  --oscuro:  #180C04;
+  --cafe:    #3D1A08;
+  --naranja: #E8721A;
+  --amarillo:#F2B830;
+  --rojo:    #C8372D;
+  --verde:   #3A8C5C;
+  --azul:    #2A6BB0;
+  --gris:    #9A8070;
+  --borde:   rgba(232,114,26,0.15);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--crema);
+  font-family: 'Montserrat', sans-serif;
+  color: var(--oscuro);
+}
+
+/* ══════════════════════ LAYOUT ══════════════════════ */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: -webkit-fill-available;
+}
+
+/* Top bar */
+.topbar {
+  background: var(--oscuro);
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-name {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #F2B830, #E8721A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.topbar-page {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--crema);
+  opacity: 0.35;
+}
+
+.topbar-btn {
+  background: rgba(253,246,236,0.1);
+  border: none;
+  color: var(--crema);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Content area */
+#content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Bottom nav */
+.bottomnav {
+  background: var(--oscuro);
+  display: flex;
+  padding-bottom: var(--safe-bot);
+  flex-shrink: 0;
+  border-top: 1px solid rgba(232,114,26,0.2);
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px;
+  cursor: pointer;
+  gap: 4px;
+  transition: opacity 0.2s;
+  border: none;
+  background: transparent;
+  color: var(--crema);
+}
+
+.nav-item.active { color: var(--naranja); }
+.nav-item .nav-icon { font-size: 20px; line-height: 1; }
+.nav-item .nav-label {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.nav-item.active .nav-label { opacity: 1; }
+
+/* Screens */
+.screen { display: none; padding: 16px 16px 80px; }
+.screen.active { display: block; }
+
+/* ══════════════════════ COMPONENTS ══════════════════════ */
+
+/* Section title */
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--oscuro);
+  margin-bottom: 4px;
+}
+
+.sec-sub {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--gris);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--naranja);
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.card-dark {
+  background: var(--oscuro);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* Stats strip */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.stat-mini {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.stat-mini-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--naranja);
+  line-height: 1;
+  display: block;
+}
+
+.stat-mini-lbl {
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gris);
+  margin-top: 3px;
+  display: block;
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.b-nuevo      { background: rgba(232,114,26,0.12); color: var(--naranja); }
+.b-contactado { background: rgba(242,184,48,0.15); color: #9A6B00; }
+.b-sesion     { background: rgba(58,140,92,0.12);  color: var(--verde); }
+.b-entregado  { background: rgba(42,107,176,0.12); color: var(--azul); }
+.b-no         { background: rgba(200,55,45,0.1);   color: var(--rojo); }
+
+/* Score circle */
+.score-circle {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+.score-hot  { background: rgba(200,55,45,0.12);  color: var(--rojo); border: 2px solid var(--rojo); }
+.score-warm { background: rgba(232,114,26,0.12); color: var(--naranja); border: 2px solid var(--naranja); }
+.score-cold { background: rgba(154,128,112,0.12); color: var(--gris); border: 2px solid var(--gris); }
+
+/* Prospect card */
+.prospect-card {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.prospect-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.prospect-card.estado-nuevo::before      { background: var(--naranja); }
+.prospect-card.estado-contactado::before { background: var(--amarillo); }
+.prospect-card.estado-sesion::before     { background: var(--verde); }
+.prospect-card.estado-entregado::before  { background: var(--azul); }
+.prospect-card.estado-no::before         { background: var(--gris); }
+
+.prospect-card:active { transform: scale(0.98); }
+
+.pc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.pc-info { flex: 1; min-width: 0; }
+.pc-name { font-size: 15px; font-weight: 700; color: var(--oscuro); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-zona { font-size: 10px; font-weight: 400; color: var(--gris); }
+.pc-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.pc-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.pc-follow { font-size: 9px; font-weight: 600; color: var(--naranja); }
+.pc-overdue { color: var(--rojo) !important; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 20px;
+  border: none; border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s; white-space: nowrap;
+}
+.btn-full { width: 100%; }
+.btn-primary   { background: var(--oscuro); color: var(--crema); }
+.btn-primary:hover { background: var(--naranja); }
+.btn-naranja   { background: var(--naranja); color: white; }
+.btn-verde     { background: var(--verde); color: white; }
+.btn-wa        { background: #25D366; color: white; }
+.btn-outline   { background: transparent; border: 1px solid var(--borde); color: var(--gris); }
+.btn-outline:hover { border-color: var(--naranja); color: var(--naranja); }
+.btn-danger    { background: rgba(200,55,45,0.1); color: var(--rojo); border: 1px solid rgba(200,55,45,0.2); }
+.btn-sm        { padding: 7px 12px; font-size: 9px; }
+
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Form */
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block;
+  font-size: 8px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gris);
+  margin-bottom: 6px;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--crema2);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px; color: var(--oscuro);
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--naranja);
+  background: white;
+}
+.form-textarea { min-height: 90px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Rating fotos */
+.foto-rating-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.foto-opt {
+  padding: 8px 4px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 9px; font-weight: 600;
+  color: var(--gris);
+  transition: all 0.2s;
+  background: var(--crema2);
+}
+.foto-opt.selected { border-color: var(--naranja); color: var(--naranja); background: rgba(232,114,26,0.08); }
+
+/* Score display */
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.score-display.hot  { background: rgba(200,55,45,0.06); border: 1px solid rgba(200,55,45,0.15); }
+.score-display.warm { background: rgba(232,114,26,0.06); border: 1px solid rgba(232,114,26,0.15); }
+.score-display.cold { background: rgba(154,128,112,0.06); border: 1px solid rgba(154,128,112,0.15); }
+.score-info { flex: 1; }
+.score-title { font-size: 13px; font-weight: 700; color: var(--oscuro); }
+.score-desc  { font-size: 11px; font-weight: 300; color: var(--gris); line-height: 1.5; }
+
+/* Timeline / historial */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px; top: 8px; bottom: 8px;
+  width: 1px;
+  background: var(--borde);
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 16px;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -20px; top: 5px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--naranja);
+}
+.tl-date  { font-size: 9px; font-weight: 700; color: var(--gris); letter-spacing: 1px; }
+.tl-text  { font-size: 13px; font-weight: 400; color: var(--oscuro); margin-top: 2px; line-height: 1.5; }
+.tl-type  {
+  display: inline-block;
+  font-size: 8px; font-weight: 700; letter-spacing: 1px;
+  padding: 2px 7px; border-radius: 6px;
+  background: rgba(232,114,26,0.1); color: var(--naranja);
+  margin-top: 4px;
+}
+
+/* Notif item */
+.notif-item {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.notif-icon { font-size: 22px; flex-shrink: 0; }
+.notif-info { flex: 1; }
+.notif-title { font-size: 13px; font-weight: 600; color: var(--oscuro); }
+.notif-sub   { font-size: 11px; font-weight: 300; color: var(--gris); }
+.notif-overdue .notif-title { color: var(--rojo); }
+
+/* Search result */
+.search-result {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.sr-name  { font-size: 15px; font-weight: 700; color: var(--oscuro); margin-bottom: 3px; }
+.sr-addr  { font-size: 11px; color: var(--gris); margin-bottom: 8px; }
+
+/* Pill select */
+.pill-select { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  padding: 6px 12px;
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  color: var(--gris); cursor: pointer;
+  transition: all 0.2s; background: transparent;
+  -webkit-appearance: none;
+}
+.pill.active, .pill:hover { background: var(--naranja); border-color: var(--naranja); color: white; }
+
+/* Map hint */
+.map-btn-full {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--oscuro);
+  color: var(--crema);
+  border-radius: 12px;
+  padding: 16px;
+  text-decoration: none;
+  font-size: 13px; font-weight: 600;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+}
+.map-btn-full:hover { background: var(--naranja); }
+
+/* Modal / sheet */
+.sheet-overlay {
+  position: fixed; inset: 0;
+  background: rgba(24,12,4,0.5);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+}
+.sheet-overlay.open { display: flex; }
+.sheet {
+  background: var(--crema);
+  width: 100%;
+  max-height: 92vh;
+  border-radius: 20px 20px 0 0;
+  overflow-y: auto;
+  padding: 8px 16px calc(var(--safe-bot) + 20px);
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.sheet-handle {
+  width: 36px; height: 4px;
+  border-radius: 2px;
+  background: var(--borde);
+  margin: 8px auto 16px;
+}
+.sheet-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 22px; font-weight: 700;
+  color: var(--oscuro);
+  margin-bottom: 16px;
+}
+
+/* Divider */
+.divider { height: 1px; background: var(--borde); margin: 16px 0; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: calc(var(--safe-bot) + 72px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--oscuro);
+  color: var(--crema);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+#toast.show { opacity: 1; }
+
+/* Geoloc map placeholder */
+.geo-map {
+  background: linear-gradient(135deg, #0A1A08, #1A3A12, #2A5A1A);
+  border-radius: 12px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.geo-pin { font-size: 36px; }
+.geo-pulse {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  border: 2px solid rgba(232,114,26,0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { transform: scale(0.8); opacity: 0.4; }
+  50%      { transform: scale(1.4); opacity: 0; }
+}
+
+/* Chart bar */
+.chart-bar-wrap { margin-bottom: 10px; }
+.chart-bar-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--gris); margin-bottom: 4px; }
+.chart-bar-track { height: 8px; background: var(--crema2); border-radius: 4px; overflow: hidden; }
+.chart-bar-fill  { height: 100%; border-radius: 4px; background: var(--naranja); transition: width 0.8s ease; }
+
+/* Floating action btn */
+.fab {
+  position: fixed;
+  bottom: calc(var(--safe-bot) + 72px);
+  right: 16px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--naranja);
+  color: white;
+  border: none;
+  font-size: 24px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(232,114,26,0.4);
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.2s;
+}
+.fab:active { transform: scale(0.92); }
+
+/* Empty */
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--gris);
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; font-weight: 600; color: var(--oscuro); margin-bottom: 6px; }
+.empty-text  { font-size: 12px; font-weight: 300; line-height: 1.7; }
+
+/* Install banner */
+.install-banner {
+  background: var(--naranja);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  display: none;
+}
+.install-banner.show { display: flex; }
+.install-banner-text { flex: 1; font-size: 12px; font-weight: 600; color: white; line-height: 1.4; }
+.install-banner-btn {
+  background: white; color: var(--naranja);
+  border: none; padding: 8px 14px;
+  border-radius: 6px; font-size: 11px; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Install banner -->
+  <div class="install-banner" id="install-banner">
+    <span style="font-size:20px;">📲</span>
+    <div class="install-banner-text">Instala Mordisco Visual en tu pantalla de inicio</div>
+    <button class="install-banner-btn" id="install-btn">Instalar</button>
+  </div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+        <g transform="rotate(0 18 18)"><path d="M18,3 C21,5 23,9 22,14 C21,18 19,20 18,21 C17,20 15,18 14,14 C13,9 15,5 18,3Z" fill="#F2B830"/></g>
+        <g transform="rotate(60 18 18)"><path d="M18,3 C21,5 23,9 22,14 C21,18 19,20 18,21 C17,20 15,18 14,14 C13,9 15,5 18,3Z" fill="#E8721A"/></g>
+        <g transform="rotate(120 18 18)"><path d="M18,3 C21,5 23,9 22,14 C21,18 19,20 18,21 C17,20 15,18 14,14 C13,9 15,5 18,3Z" fill="#F2B830"/></g>
+        <g transform="rotate(180 18 18)"><path d="M18,3 C21,5 23,9 22,14 C21,18 19,20 18,21 C17,20 15,18 14,14 C13,9 15,5 18,3Z" fill="#E8721A"/></g>
+        <g transform="rotate(240 18 18)"><path d="M18,3 C21,5 23,9 22,14 C21,18 19,20 18,21 C17,20 15,18 14,14 C13,9 15,5 18,3Z" fill="#F2B830"/></g>
+        <g transform="rotate(300 18 18)"><path d="M18,3 C21,5 23,9 22,14 C21,18 19,20 18,21 C17,20 15,18 14,14 C13,9 15,5 18,3Z" fill="#E8721A"/></g>
+        <circle cx="18" cy="18" r="5" fill="#180C04"/>
+        <circle cx="18" cy="18" r="2" fill="#E8721A"/>
+      </svg>
+      <div>
+        <div class="topbar-name">Mordisco Visual</div>
+      </div>
+    </div>
+    <span class="topbar-page" id="topbar-page">Inicio</span>
+  </div>
+
+  <!-- Content -->
+  <div id="content">
+
+    <!-- ══ INICIO ══ -->
+    <div class="screen active" id="screen-inicio">
+      <span class="label">Buenos días 👋</span>
+      <h1 class="sec-title">Panel de control</h1>
+      <p class="sec-sub">Tu actividad de prospecting de hoy</p>
+
+      <div class="stats-strip" id="stats-strip"></div>
+
+      <!-- Seguimientos pendientes hoy -->
+      <span class="label">Seguimientos pendientes</span>
+      <div id="seguimientos-hoy"></div>
+
+      <!-- Últimos prospectos -->
+      <span class="label" style="margin-top:20px;">Últimos añadidos</span>
+      <div id="ultimos-prospectos"></div>
+
+      <!-- Gráfica rápida -->
+      <span class="label" style="margin-top:20px;">Embudo de conversión</span>
+      <div class="card" id="funnel-chart"></div>
+    </div>
+
+    <!-- ══ PROSPECTOS ══ -->
+    <div class="screen" id="screen-prospectos">
+      <h1 class="sec-title">Prospectos</h1>
+
+      <!-- Filtros estado -->
+      <div class="pill-select" id="filtro-estado" style="margin-bottom:16px;">
+        <button class="pill active" data-estado="todos">Todos</button>
+        <button class="pill" data-estado="nuevo">Nuevos</button>
+        <button class="pill" data-estado="contactado">Contactados</button>
+        <button class="pill" data-estado="sesion">Sesión</button>
+        <button class="pill" data-estado="entregado">Entregados</button>
+      </div>
+
+      <div id="lista-prospectos"></div>
+    </div>
+
+    <!-- ══ BUSCAR ══ -->
+    <div class="screen" id="screen-buscar">
+      <h1 class="sec-title">Buscar restaurantes</h1>
+      <p class="sec-sub">Encuentra locales con malas fotos cerca de ti o en tu zona objetivo</p>
+
+      <!-- Geolocalización -->
+      <span class="label">📍 Mi ubicación actual</span>
+      <div class="geo-map" id="geo-map">
+        <div class="geo-pulse"></div>
+        <div style="text-align:center;">
+          <div class="geo-pin">📍</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;" id="geo-status">Toca para detectar ubicación</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" style="margin-bottom:20px;" onclick="getLocation()">
+        🎯 Detectar mi ubicación y buscar cerca
+      </button>
+
+      <!-- Zona manual -->
+      <span class="label">🗺️ O busca por zona</span>
+      <div class="pill-select" id="zona-pills" style="margin-bottom:12px;"></div>
+
+      <!-- Tipo -->
+      <span class="label" style="margin-top:12px;">Tipo de local</span>
+      <div class="pill-select" id="tipo-pills" style="margin-bottom:16px;"></div>
+
+      <!-- Búsquedas -->
+      <span class="label">Búsquedas sugeridas</span>
+      <div id="search-links"></div>
+    </div>
+
+    <!-- ══ NOTIFICACIONES ══ -->
+    <div class="screen" id="screen-notif">
+      <h1 class="sec-title">Seguimientos</h1>
+      <p class="sec-sub">Recordatorios automáticos para no perder ningún prospecto</p>
+      <div id="notif-list"></div>
+    </div>
+
+    <!-- ══ AJUSTES ══ -->
+    <div class="screen" id="screen-ajustes">
+      <h1 class="sec-title">Ajustes</h1>
+      <span class="label">Tu perfil</span>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Tu nombre</label>
+          <input class="form-input" id="cfg-nombre" placeholder="Tu nombre"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tu teléfono (para links WA)</label>
+          <input class="form-input" id="cfg-tel" placeholder="+34 600 000 000" type="tel"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tu ciudad base</label>
+          <input class="form-input" id="cfg-ciudad" placeholder="Alicante"/>
+        </div>
+        <button class="btn btn-verde btn-full" onclick="saveConfig()">Guardar configuración</button>
+      </div>
+
+      <span class="label" style="margin-top:20px;">Notificaciones</span>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Seguimiento 48h</div>
+            <div style="font-size:11px;color:var(--gris);">Recordar contactar tras añadir</div>
+          </div>
+          <input type="checkbox" id="cfg-notif48" checked style="width:18px;height:18px;accent-color:var(--naranja);">
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Recordatorio 5 días</div>
+            <div style="font-size:11px;color:var(--gris);">Si no hay respuesta en 5 días</div>
+          </div>
+          <input type="checkbox" id="cfg-notif5d" checked style="width:18px;height:18px;accent-color:var(--naranja);">
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-primary btn-full" onclick="requestNotifPermission()">
+          🔔 Activar notificaciones
+        </button>
+      </div>
+
+      <span class="label" style="margin-top:20px;">Datos</span>
+      <div class="card">
+        <button class="btn btn-outline btn-full" style="margin-bottom:8px;" onclick="exportData()">
+          📤 Exportar prospectos (JSON)
+        </button>
+        <button class="btn btn-danger btn-full" onclick="clearData()">
+          🗑️ Borrar todos los datos
+        </button>
+      </div>
+
+      <div style="text-align:center;padding:24px;font-size:10px;color:var(--gris);">
+        Mordisco Visual Prospector v1.0<br>Food Photography · Alicante
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- FAB -->
+  <button class="fab" id="fab" onclick="openAddSheet()">+</button>
+
+  <!-- Bottom nav -->
+  <nav class="bottomnav">
+    <button class="nav-item active" data-screen="inicio" onclick="navTo('inicio')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button class="nav-item" data-screen="prospectos" onclick="navTo('prospectos')">
+      <span class="nav-icon">👥</span>
+      <span class="nav-label">Prospectos</span>
+    </button>
+    <button class="nav-item" data-screen="buscar" onclick="navTo('buscar')">
+      <span class="nav-icon">🔍</span>
+      <span class="nav-label">Buscar</span>
+    </button>
+    <button class="nav-item" data-screen="notif" onclick="navTo('notif')">
+      <span class="nav-icon">🔔</span>
+      <span class="nav-label">Avisos</span>
+      <span id="notif-badge" style="display:none;position:absolute;top:6px;right:calc(50% - 18px);background:var(--rojo);color:white;font-size:8px;font-weight:700;padding:2px 5px;border-radius:8px;"></span>
+    </button>
+    <button class="nav-item" data-screen="ajustes" onclick="navTo('ajustes')">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Ajustes</span>
+    </button>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- ══ SHEET: Añadir prospecto ══ -->
+<div class="sheet-overlay" id="sheet-add" onclick="closeSheetIfOutside(event,'sheet-add')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nuevo prospecto</div>
+
+    <div class="form-group">
+      <label class="form-label">Nombre del restaurante *</label>
+      <input class="form-input" id="a-nombre" placeholder="Restaurante El Mar"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Zona / Barrio</label>
+        <input class="form-input" id="a-zona" placeholder="Alicante centro"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="a-tipo">
+          <option>Restaurante</option>
+          <option>Bar de tapas</option>
+          <option>Cafetería</option>
+          <option>Pizzería</option>
+          <option>Marisquería</option>
+          <option>Panadería</option>
+          <option>Heladería</option>
+          <option>Coctelería</option>
+          <option>Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Teléfono</label>
+      <input class="form-input" id="a-tel" placeholder="+34 600 000 000" type="tel"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Instagram</label>
+      <input class="form-input" id="a-ig" placeholder="@restaurante"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Link Google Maps</label>
+      <input class="form-input" id="a-maps" placeholder="https://maps.google.com/..." type="url"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Calidad fotos actuales</label>
+      <div class="foto-rating-selector">
+        <div class="foto-opt selected" data-val="sin-fotos" onclick="selectFoto(this)">Sin fotos</div>
+        <div class="foto-opt" data-val="muy-malas" onclick="selectFoto(this)">Muy malas</div>
+        <div class="foto-opt" data-val="malas" onclick="selectFoto(this)">Malas</div>
+        <div class="foto-opt" data-val="regulares" onclick="selectFoto(this)">Regulares</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Especialidad / Notas</label>
+      <textarea class="form-textarea" id="a-notas" placeholder="Cocina mediterránea, precios medios, muy concurrido..."></textarea>
+    </div>
+
+    <!-- Recordatorio -->
+    <div class="form-group">
+      <label class="form-label">⏰ Recordatorio de seguimiento</label>
+      <select class="form-select" id="a-followup">
+        <option value="48">En 48 horas</option>
+        <option value="72">En 3 días</option>
+        <option value="120">En 5 días</option>
+        <option value="0">Sin recordatorio</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary btn-full" style="margin-top:4px;" onclick="saveNewProspect()">
+      Guardar prospecto
+    </button>
+    <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeSheet('sheet-add')">
+      Cancelar
+    </button>
+  </div>
+</div>
+
+<!-- ══ SHEET: Ficha del prospecto ══ -->
+<div class="sheet-overlay" id="sheet-ficha" onclick="closeSheetIfOutside(event,'sheet-ficha')">
+  <div class="sheet" id="ficha-content"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+let prospects = JSON.parse(localStorage.getItem('mv-prospects-v2') || '[]');
+let config    = JSON.parse(localStorage.getItem('mv-config') || '{"nombre":"","tel":"","ciudad":"Alicante"}');
+let fotoSelected = 'sin-fotos';
+
+const ZONAS = ['Alicante','Benidorm','Elche','Torrevieja','Dénia','Altea','Villajoyosa','Calpe','Valencia','Murcia','Cartagena'];
+const TIPOS = ['restaurante','bar de tapas','cafetería','pizzería','marisquería','panadería','heladería','coctelería'];
+let zonaActiva = config.ciudad || 'Alicante';
+let tiposActivos = ['restaurante','bar de tapas'];
+let filtroEstado = 'todos';
+
+// ══ SCORING ══
+function calcScore(p) {
+  let score = 0;
+  // Calidad fotos malas = mayor urgencia
+  if (p.fotos === 'sin-fotos')   score += 40;
+  if (p.fotos === 'muy-malas')   score += 30;
+  if (p.fotos === 'malas')       score += 20;
+  if (p.fotos === 'regulares')   score += 5;
+  // Tipo
+  if (p.tipo === 'Restaurante')  score += 20;
+  if (p.tipo === 'Marisquería')  score += 18;
+  if (p.tipo === 'Bar de tapas') score += 15;
+  // Tiene teléfono
+  if (p.tel)                     score += 10;
+  // Tiene Instagram
+  if (p.ig)                      score += 10;
+  // Tiene Maps
+  if (p.maps)                    score += 5;
+  return Math.min(score, 100);
+}
+
+function scoreClass(s) {
+  if (s >= 70) return 'hot';
+  if (s >= 40) return 'warm';
+  return 'cold';
+}
+
+function scoreEmoji(s) {
+  if (s >= 70) return '🔥';
+  if (s >= 40) return '⚡';
+  return '❄️';
+}
+
+function scoreLabel(s) {
+  if (s >= 70) return { title: 'Oportunidad caliente', desc: 'Fotos muy malas + fácil de contactar. Prioridad máxima.' };
+  if (s >= 40) return { title: 'Oportunidad interesante', desc: 'Vale la pena contactar esta semana.' };
+  return { title: 'Oportunidad fría', desc: 'Puede esperar o necesita más información.' };
+}
+
+// ══ NAVIGATION ══
+const PAGES = { inicio:'Inicio', prospectos:'Prospectos', buscar:'Buscar', notif:'Avisos', ajustes:'Ajustes' };
+
+function navTo(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelector(`[data-screen="${name}"]`).classList.add('active');
+  document.getElementById('topbar-page').textContent = PAGES[name];
+  document.getElementById('content').scrollTop = 0;
+
+  // FAB solo en prospectos
+  document.getElementById('fab').style.display = name === 'prospectos' ? 'flex' : 'none';
+
+  if (name === 'inicio')      renderInicio();
+  if (name === 'prospectos')  renderProspectos();
+  if (name === 'buscar')      renderBuscar();
+  if (name === 'notif')       renderNotif();
+  if (name === 'ajustes')     renderAjustes();
+}
+
+// ══ SHEETS ══
+function openAddSheet() {
+  document.getElementById('sheet-add').classList.add('open');
+  document.getElementById('a-zona').value = zonaActiva;
+}
+function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
+function closeSheetIfOutside(e, id) {
+  if (e.target === document.getElementById(id)) closeSheet(id);
+}
+
+// ══ RENDER INICIO ══
+function renderInicio() {
+  const total     = prospects.length;
+  const nuevos    = prospects.filter(p => p.estado === 'nuevo').length;
+  const sesiones  = prospects.filter(p => p.estado === 'sesion').length;
+  const entregados= prospects.filter(p => p.estado === 'entregado').length;
+
+  document.getElementById('stats-strip').innerHTML = `
+    <div class="stat-mini"><span class="stat-mini-num">${total}</span><span class="stat-mini-lbl">Total</span></div>
+    <div class="stat-mini"><span class="stat-mini-num">${nuevos}</span><span class="stat-mini-lbl">Nuevos</span></div>
+    <div class="stat-mini"><span class="stat-mini-num">${sesiones}</span><span class="stat-mini-lbl">Sesiones</span></div>
+    <div class="stat-mini"><span class="stat-mini-num">${entregados}</span><span class="stat-mini-lbl">Entregados</span></div>
+  `;
+
+  // Seguimientos hoy
+  const now = Date.now();
+  const pending = prospects.filter(p => p.followupAt && p.followupAt <= now && p.estado !== 'entregado' && p.estado !== 'no');
+  const cont = document.getElementById('seguimientos-hoy');
+  if (pending.length === 0) {
+    cont.innerHTML = `<div class="card" style="text-align:center;padding:20px;color:var(--gris);font-size:12px;">✅ Sin seguimientos pendientes hoy</div>`;
+  } else {
+    cont.innerHTML = pending.map(p => `
+      <div class="notif-item notif-overdue" onclick="openFicha(${p.id})">
+        <div class="notif-icon">⏰</div>
+        <div class="notif-info">
+          <div class="notif-title">${p.nombre}</div>
+          <div class="notif-sub">Seguimiento pendiente · ${p.zona}</div>
+        </div>
+        <span style="font-size:11px;color:var(--rojo);font-weight:700;">HOY</span>
+      </div>
+    `).join('');
+  }
+
+  // Últimos 3
+  const ultimos = [...prospects].slice(0, 3);
+  document.getElementById('ultimos-prospectos').innerHTML = ultimos.length
+    ? ultimos.map(p => prospectCardHTML(p)).join('')
+    : `<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-title">Sin prospectos aún</div><div class="empty-text">Usa "Buscar" para encontrar restaurantes con malas fotos</div></div>`;
+
+  // Funnel
+  const estados = ['nuevo','contactado','sesion','entregado'];
+  const labels  = { nuevo:'Nuevos', contactado:'Contactados', sesion:'Sesiones', entregado:'Entregados' };
+  const max = Math.max(1, total);
+  document.getElementById('funnel-chart').innerHTML = estados.map(e => {
+    const n = prospects.filter(p => p.estado === e).length;
+    const pct = Math.round((n / max) * 100);
+    return `
+      <div class="chart-bar-wrap">
+        <div class="chart-bar-label"><span>${labels[e]}</span><span>${n}</span></div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%"></div></div>
+      </div>`;
+  }).join('');
+
+  updateNotifBadge();
+}
+
+// ══ RENDER PROSPECTOS ══
+function renderProspectos() {
+  const filtered = filtroEstado === 'todos'
+    ? prospects
+    : prospects.filter(p => p.estado === filtroEstado);
+
+  // Ordenar por score desc
+  const sorted = [...filtered].sort((a, b) => calcScore(b) - calcScore(a));
+
+  document.getElementById('lista-prospectos').innerHTML = sorted.length
+    ? sorted.map(p => prospectCardHTML(p)).join('')
+    : `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Sin prospectos</div><div class="empty-text">Añade tu primer restaurante pulsando el botón +</div></div>`;
+}
+
+function prospectCardHTML(p) {
+  const score = calcScore(p);
+  const sc    = scoreClass(score);
+  const now   = Date.now();
+  const isOverdue = p.followupAt && p.followupAt <= now && p.estado !== 'entregado' && p.estado !== 'no';
+  const followText = p.followupAt
+    ? (isOverdue ? '⚠️ Seguimiento vencido' : `⏰ Seguimiento: ${new Date(p.followupAt).toLocaleDateString('es-ES')}`)
+    : '';
+
+  return `
+    <div class="prospect-card estado-${p.estado}" onclick="openFicha(${p.id})">
+      <div class="pc-top">
+        <div class="score-circle score-${sc}">${scoreEmoji(score)}</div>
+        <div class="pc-info">
+          <div class="pc-name">${p.nombre}</div>
+          <div class="pc-zona">${p.tipo} · ${p.zona}</div>
+        </div>
+        <span class="badge b-${p.estado}">${estadoLabel(p.estado)}</span>
+      </div>
+      <div class="pc-bottom">
+        <div class="pc-tags">
+          <span class="badge" style="background:rgba(154,128,112,0.1);color:var(--gris);">${fotoLabel(p.fotos)}</span>
+          ${p.tel ? '<span class="badge" style="background:rgba(58,140,92,0.1);color:var(--verde);">📞</span>' : ''}
+          ${p.ig  ? '<span class="badge" style="background:rgba(200,55,45,0.1);color:var(--rojo);">📷</span>' : ''}
+        </div>
+        ${followText ? `<span class="pc-follow ${isOverdue ? 'pc-overdue' : ''}">${followText}</span>` : ''}
+      </div>
+    </div>`;
+}
+
+// ══ FICHA ══
+function openFicha(id) {
+  const p = prospects.find(x => x.id === id);
+  if (!p) return;
+  const score  = calcScore(p);
+  const sc     = scoreClass(score);
+  const sl     = scoreLabel(score);
+  const waLink = buildWALink(p);
+
+  const histHTML = (p.historial || []).length
+    ? `<div class="timeline">${(p.historial || []).map(h => `
+        <div class="tl-item">
+          <div class="tl-date">${new Date(h.fecha).toLocaleDateString('es-ES', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+          <div class="tl-text">${h.texto}</div>
+          <span class="tl-type">${h.tipo}</span>
+        </div>`).join('')}
+      </div>`
+    : '<p style="font-size:12px;color:var(--gris);font-weight:300;">Sin historial aún. Añade notas después de cada interacción.</p>';
+
+  document.getElementById('ficha-content').innerHTML = `
+    <div class="sheet-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="sheet-title" style="margin:0;">${p.nombre}</div>
+      <span class="badge b-${p.estado}">${estadoLabel(p.estado)}</span>
+    </div>
+
+    <!-- Score -->
+    <div class="score-display ${sc}">
+      <div class="score-circle score-${sc}" style="width:52px;height:52px;font-size:20px;">${scoreEmoji(score)}<br><span style="font-size:11px;">${score}</span></div>
+      <div class="score-info">
+        <div class="score-title">${sl.title}</div>
+        <div class="score-desc">${sl.desc}</div>
+      </div>
+    </div>
+
+    <!-- Datos -->
+    <span class="label">Información</span>
+    <div class="card" style="margin-bottom:16px;">
+      ${row('📍','Zona', p.zona)}
+      ${row('🍽️','Tipo', p.tipo)}
+      ${row('📸','Fotos actuales', fotoLabel(p.fotos))}
+      ${p.tel   ? row('📞','Teléfono', p.tel) : ''}
+      ${p.ig    ? row('📷','Instagram', p.ig) : ''}
+      ${p.maps  ? `<div style="margin-top:8px;"><a href="${p.maps}" target="_blank" class="btn btn-outline btn-sm btn-full">Ver en Google Maps →</a></div>` : ''}
+      ${p.notas ? row('📝','Notas', p.notas) : ''}
+      <div style="margin-top:8px;font-size:9px;color:var(--gris);">Añadido el ${new Date(p.fecha).toLocaleDateString('es-ES')}</div>
+    </div>
+
+    <!-- Cambiar estado -->
+    <span class="label">Estado</span>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px;">
+      ${['nuevo','contactado','sesion','entregado','no'].map(e => `
+        <button class="btn btn-sm ${p.estado===e?'btn-naranja':'btn-outline'}" onclick="changeEstado(${p.id},'${e}')">
+          ${estadoLabel(e)}
+        </button>`).join('')}
+    </div>
+
+    <!-- Acciones rápidas -->
+    <span class="label">Acciones</span>
+    <div class="btn-row" style="margin-bottom:16px;">
+      ${waLink ? `<a href="${waLink}" target="_blank" class="btn btn-wa" style="flex:1;">💬 WhatsApp</a>` : ''}
+      ${p.tel  ? `<a href="tel:${p.tel}" class="btn btn-primary" style="flex:1;">📞 Llamar</a>` : ''}
+      ${p.ig   ? `<a href="https://instagram.com/${p.ig.replace('@','')}" target="_blank" class="btn btn-outline" style="flex:1;">📷 IG</a>` : ''}
+    </div>
+
+    <!-- Añadir nota -->
+    <span class="label">Añadir nota al historial</span>
+    <div style="margin-bottom:16px;">
+      <textarea class="form-textarea" id="nota-texto-${p.id}" placeholder="Ej: Llamé, me dijeron que llame la semana que viene..." style="margin-bottom:8px;"></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <select class="form-select" id="nota-tipo-${p.id}">
+          <option value="llamada">📞 Llamada</option>
+          <option value="whatsapp">💬 WhatsApp</option>
+          <option value="visita">🚶 Visita</option>
+          <option value="sesion">📸 Sesión</option>
+          <option value="entrega">✅ Entrega</option>
+          <option value="nota">📝 Nota</option>
+        </select>
+        <button class="btn btn-verde" onclick="addNota(${p.id})">Guardar nota</button>
+      </div>
+    </div>
+
+    <!-- Seguimiento -->
+    <span class="label">Programar seguimiento</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+      <select class="form-select" id="follow-sel-${p.id}">
+        <option value="48">48 horas</option>
+        <option value="72">3 días</option>
+        <option value="120">5 días</option>
+        <option value="168">1 semana</option>
+      </select>
+      <button class="btn btn-primary" onclick="scheduleFollowup(${p.id})">⏰ Programar</button>
+    </div>
+
+    <!-- Historial -->
+    <span class="label">Historial de contactos</span>
+    <div style="margin-bottom:16px;">${histHTML}</div>
+
+    <div class="divider"></div>
+    <button class="btn btn-danger btn-full" onclick="deleteProspect(${p.id})">Eliminar prospecto</button>
+    <div style="height:8px;"></div>
+  `;
+
+  document.getElementById('sheet-ficha').classList.add('open');
+}
+
+function row(icon, label, value) {
+  return `<div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;">
+    <span style="font-size:14px;flex-shrink:0;">${icon}</span>
+    <div><div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gris);">${label}</div>
+    <div style="font-size:13px;font-weight:400;color:var(--oscuro);">${value}</div></div>
+  </div>`;
+}
+
+function addNota(id) {
+  const p    = prospects.find(x => x.id === id);
+  const text = document.getElementById(`nota-texto-${id}`).value.trim();
+  const tipo = document.getElementById(`nota-tipo-${id}`).value;
+  if (!text) { toast('Escribe algo antes de guardar'); return; }
+  if (!p.historial) p.historial = [];
+  p.historial.unshift({ fecha: Date.now(), texto: text, tipo });
+  save();
+  openFicha(id);
+  toast('Nota guardada ✓');
+}
+
+function scheduleFollowup(id) {
+  const p   = prospects.find(x => x.id === id);
+  const hrs = parseInt(document.getElementById(`follow-sel-${id}`).value);
+  p.followupAt = Date.now() + hrs * 3600000;
+  save();
+  scheduleNotification(p, hrs);
+  toast(`⏰ Recordatorio en ${hrs}h`);
+  openFicha(id);
+}
+
+function changeEstado(id, estado) {
+  const p = prospects.find(x => x.id === id);
+  if (!p) return;
+  p.estado = estado;
+  save();
+  openFicha(id);
+  renderProspectos();
+  toast(`Estado: ${estadoLabel(estado)}`);
+}
+
+function deleteProspect(id) {
+  if (!confirm('¿Eliminar este prospecto?')) return;
+  prospects = prospects.filter(p => p.id !== id);
+  save();
+  closeSheet('sheet-ficha');
+  renderProspectos();
+  renderInicio();
+  toast('Eliminado');
+}
+
+// ══ RENDER BUSCAR ══
+let zonaActBuscar = 'Alicante';
+
+function renderBuscar() {
+  const zonaWrap = document.getElementById('zona-pills');
+  zonaWrap.innerHTML = ZONAS.map(z =>
+    `<button class="pill ${z === zonaActBuscar ? 'active':''}" onclick="setZonaBuscar('${z}',this)">${z}</button>`
+  ).join('');
+
+  const tipoWrap = document.getElementById('tipo-pills');
+  tipoWrap.innerHTML = TIPOS.map(t =>
+    `<button class="pill ${tiposActivos.includes(t)?'active':''}" onclick="toggleTipo('${t}',this)">${t}</button>`
+  ).join('');
+
+  renderSearchLinks();
+}
+
+function setZonaBuscar(z, btn) {
+  zonaActBuscar = z;
+  document.querySelectorAll('#zona-pills .pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSearchLinks();
+}
+
+function toggleTipo(t, btn) {
+  btn.classList.toggle('active');
+  if (tiposActivos.includes(t)) tiposActivos = tiposActivos.filter(x => x !== t);
+  else tiposActivos.push(t);
+  renderSearchLinks();
+}
+
+const SEARCH_CONFIGS = [
+  { label:'Sin fotos o fotos malas',  suffix:'fotos malas',      hint:'🎯 Alta prioridad' },
+  { label:'Recién abierto',           suffix:'nuevo 2024 2025',  hint:'🆕 Necesitan contenido' },
+  { label:'Zona turística',           suffix:'playa turístico',  hint:'🏖️ Alta competencia visual' },
+  { label:'Económico / popular',      suffix:'económico popular',hint:'💰 Sin presupuesto de marketing' },
+  { label:'Carta actualizada',        suffix:'carta menú',       hint:'📋 Pueden necesitar fotos del menú' },
+];
+
+function renderSearchLinks() {
+  const wrap = document.getElementById('search-links');
+  if (tiposActivos.length === 0) {
+    wrap.innerHTML = '<p style="color:var(--gris);font-size:12px;padding:8px;">Selecciona al menos un tipo de local</p>';
+    return;
+  }
+
+  const html = tiposActivos.flatMap(tipo =>
+    SEARCH_CONFIGS.map(cfg => {
+      const url = `https://www.google.com/maps/search/${encodeURIComponent(`${tipo} ${zonaActBuscar} ${cfg.suffix}`)}`;
+      return `
+        <div class="search-result">
+          <div class="sr-name">${cfg.label}</div>
+          <div class="sr-addr">${tipo} en ${zonaActBuscar} · ${cfg.hint}</div>
+          <div class="btn-row">
+            <a href="${url}" target="_blank" class="btn btn-primary btn-sm" style="flex:1;">Abrir en Maps →</a>
+            <button class="btn btn-outline btn-sm" onclick="copyUrl('${url}')">Copiar link</button>
+          </div>
+        </div>`;
+    })
+  ).join('');
+
+  wrap.innerHTML = html;
+}
+
+function getLocation() {
+  const status = document.getElementById('geo-status');
+  if (!navigator.geolocation) {
+    status.textContent = 'Geolocalización no soportada';
+    return;
+  }
+  status.textContent = 'Detectando...';
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude: lat, longitude: lng } = pos.coords;
+    status.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    const url = `https://www.google.com/maps/search/restaurante+fotos+malas/@${lat},${lng},15z`;
+    window.open(url, '_blank');
+    toast('📍 Abriendo Maps con tu ubicación');
+  }, err => {
+    status.textContent = 'No se pudo obtener la ubicación';
+    toast('Activa la ubicación en tu móvil');
+  });
+}
+
+// ══ RENDER NOTIF ══
+function renderNotif() {
+  const now = Date.now();
+  const pending = prospects
+    .filter(p => p.followupAt && p.estado !== 'entregado' && p.estado !== 'no')
+    .sort((a, b) => a.followupAt - b.followupAt);
+
+  if (pending.length === 0) {
+    document.getElementById('notif-list').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">✅</div>
+        <div class="empty-title">Sin seguimientos pendientes</div>
+        <div class="empty-text">Cuando programes un recordatorio desde la ficha de un prospecto aparecerá aquí</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('notif-list').innerHTML = pending.map(p => {
+    const overdue = p.followupAt <= now;
+    const diff    = p.followupAt - now;
+    const label   = overdue
+      ? '⚠️ Vencido'
+      : diff < 86400000
+        ? `En ${Math.round(diff/3600000)}h`
+        : `En ${Math.round(diff/86400000)}d`;
+
+    return `
+      <div class="notif-item ${overdue ? 'notif-overdue' : ''}" onclick="openFicha(${p.id});closeSheet('sheet-ficha')">
+        <div class="notif-icon">${overdue ? '🔴' : '🟡'}</div>
+        <div class="notif-info">
+          <div class="notif-title">${p.nombre}</div>
+          <div class="notif-sub">${p.tipo} · ${p.zona} · ${estadoLabel(p.estado)}</div>
+        </div>
+        <span style="font-size:10px;font-weight:700;color:${overdue?'var(--rojo)':'var(--naranja)'};">${label}</span>
+      </div>`;
+  }).join('');
+
+  updateNotifBadge();
+}
+
+function updateNotifBadge() {
+  const now = Date.now();
+  const overdue = prospects.filter(p => p.followupAt && p.followupAt <= now && p.estado !== 'entregado' && p.estado !== 'no').length;
+  const badge = document.getElementById('notif-badge');
+  if (overdue > 0) {
+    badge.textContent = overdue;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ══ RENDER AJUSTES ══
+function renderAjustes() {
+  document.getElementById('cfg-nombre').value  = config.nombre  || '';
+  document.getElementById('cfg-tel').value     = config.tel     || '';
+  document.getElementById('cfg-ciudad').value  = config.ciudad  || 'Alicante';
+}
+
+function saveConfig() {
+  config.nombre = document.getElementById('cfg-nombre').value.trim();
+  config.tel    = document.getElementById('cfg-tel').value.trim();
+  config.ciudad = document.getElementById('cfg-ciudad').value.trim();
+  localStorage.setItem('mv-config', JSON.stringify(config));
+  zonaActiva    = config.ciudad;
+  toast('Configuración guardada ✓');
+}
+
+// ══ ADD PROSPECT ══
+function selectFoto(el) {
+  document.querySelectorAll('.foto-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  fotoSelected = el.dataset.val;
+}
+
+function saveNewProspect() {
+  const nombre = document.getElementById('a-nombre').value.trim();
+  if (!nombre) { toast('El nombre es obligatorio'); return; }
+
+  const followupHrs = parseInt(document.getElementById('a-followup').value);
+
+  const p = {
+    id:         Date.now(),
+    nombre,
+    zona:       document.getElementById('a-zona').value.trim() || zonaActiva,
+    tipo:       document.getElementById('a-tipo').value,
+    tel:        document.getElementById('a-tel').value.trim(),
+    ig:         document.getElementById('a-ig').value.trim(),
+    maps:       document.getElementById('a-maps').value.trim(),
+    fotos:      fotoSelected,
+    notas:      document.getElementById('a-notas').value.trim(),
+    estado:     'nuevo',
+    fecha:      Date.now(),
+    followupAt: followupHrs > 0 ? Date.now() + followupHrs * 3600000 : null,
+    historial:  [],
+  };
+
+  prospects.unshift(p);
+  save();
+
+  if (followupHrs > 0) scheduleNotification(p, followupHrs);
+
+  // Limpiar form
+  ['a-nombre','a-zona','a-tel','a-ig','a-maps','a-notas'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('a-tipo').value = 'Restaurante';
+  fotoSelected = 'sin-fotos';
+  document.querySelectorAll('.foto-opt').forEach((e,i) => e.classList.toggle('selected', i === 0));
+
+  closeSheet('sheet-add');
+  navTo('prospectos');
+  toast(`✓ ${nombre} añadido`);
+}
+
+// ══ NOTIFICATIONS ══
+async function requestNotifPermission() {
+  if (!('Notification' in window)) { toast('Tu navegador no soporta notificaciones'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') {
+    toast('🔔 Notificaciones activadas');
+    registerSW();
+  } else {
+    toast('Permiso denegado. Actívalo en ajustes del móvil');
+  }
+}
+
+function scheduleNotification(p, hrs) {
+  if (!navigator.serviceWorker?.controller) return;
+  navigator.serviceWorker.controller.postMessage({
+    type: 'SCHEDULE_NOTIFICATION',
+    id:    p.id,
+    title: `⏰ Seguimiento: ${p.nombre}`,
+    body:  `Recuerda contactar a ${p.nombre} (${p.zona})`,
+    delay: hrs * 3600000,
+  });
+}
+
+// ══ HELPERS ══
+function estadoLabel(e) {
+  return {nuevo:'Nuevo',contactado:'Contactado',sesion:'Sesión',entregado:'Entregado',no:'No interesa'}[e] || e;
+}
+
+function fotoLabel(f) {
+  return {sinfotos:'Sin fotos','sin-fotos':'Sin fotos','muy-malas':'Muy malas',malas:'Malas',regulares:'Regulares'}[f] || f;
+}
+
+function buildWALink(p) {
+  const raw = (p.tel || '').replace(/\D/g,'');
+  if (!raw || raw.length < 9) return null;
+  const tel = raw.startsWith('34') ? raw : `34${raw}`;
+  const cfg = JSON.parse(localStorage.getItem('mv-config') || '{}');
+  const nombre = cfg.nombre || 'fotógrafo gastronómico';
+  const msg = encodeURIComponent(
+    `Hola, buenos días 👋\n\nSoy ${nombre}, fotógrafo gastronómico especializado en restaurantes de la zona. He visto vuestro local en Google Maps y creo que vuestra propuesta gastronómica merece lucirse mucho mejor visualmente.\n\nEstoy ofreciendo mini sesiones colaborativas gratuitas a restaurantes seleccionados — 3 a 5 fotos profesionales de 1 o 2 platos, sin compromiso ni coste.\n\n¿Os interesaría que lo hablemos? Un saludo 🍽️📸`
+  );
+  return `https://wa.me/${tel}?text=${msg}`;
+}
+
+function copyUrl(url) {
+  navigator.clipboard.writeText(url).then(() => toast('Link copiado ✓'));
+}
+
+function save() {
+  localStorage.setItem('mv-prospects-v2', JSON.stringify(prospects));
+  updateNotifBadge();
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(prospects, null, 2)], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'mordisco-prospectos.json';
+  a.click();
+}
+
+function clearData() {
+  if (!confirm('¿Borrar TODOS los prospectos? Esta acción no se puede deshacer.')) return;
+  prospects = [];
+  save();
+  renderInicio();
+  toast('Datos borrados');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ══ FILTROS ══
+document.getElementById('filtro-estado').addEventListener('click', e => {
+  const pill = e.target.closest('.pill');
+  if (!pill) return;
+  document.querySelectorAll('#filtro-estado .pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  filtroEstado = pill.dataset.estado;
+  renderProspectos();
+});
+
+// ══ PWA / SERVICE WORKER ══
+let deferredPrompt;
+
+async function registerSW() {
+  if ('serviceWorker' in navigator) {
+    try {
+      await navigator.serviceWorker.register('sw.js');
+    } catch(e) { console.log('SW error:', e); }
+  }
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  if (result.outcome === 'accepted') toast('¡App instalada! 🎉');
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+});
+
+// ══ INIT ══
+window.addEventListener('load', () => {
+  registerSW();
+  renderInicio();
+
+  // Prefill zona desde config
+  document.getElementById('a-zona').value = config.ciudad || 'Alicante';
+
+  // Open prospect from URL param
+  const params = new URLSearchParams(location.search);
+  const pid    = params.get('prospect');
+  if (pid) {
+    navTo('prospectos');
+    setTimeout(() => openFicha(parseInt(pid)), 300);
+  }
+
+  // Update notif badge cada minuto
+  setInterval(updateNotifBadge, 60000);
+});
+</script>
+</body>
+</html>
